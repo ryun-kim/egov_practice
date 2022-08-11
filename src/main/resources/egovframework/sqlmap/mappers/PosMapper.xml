@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="PosMapper">
+
+	<insert id="insPos">
+		INSERT INTO POS_MEMBER
+			(POS_NUM
+			,POS_POSITION
+			,POS_NAME
+			,POS_PHONE
+			,POS_TEAM
+			,POS_ETC)
+		VALUES
+			(#{POS_NUM}
+			,#{POS_POSITION,jdbcType=VARCHAR}
+			,#{POS_NAME, jdbcType=VARCHAR}
+			,#{POS_PHONE, jdbcType=VARCHAR}
+			,#{POS_TEAM, jdbcType=VARCHAR}
+			,#{POS_ETC, jdbcType=VARCHAR} 
+			)
+	</insert>
+
+	<update id="updPos" parameterType="egovframework.example.service.vo.DeptVO">
+		UPDATE POS_MEMBER
+		<set>
+			<if test="POS_NUM != null || POS_NUM != ''">
+				POS_NUM= #{POS_NUM},
+			</if>
+			<if test="POS_POSITION != null || POS_POSITION != ''">
+				POS_POSITION= #{POS_POSITION},
+			</if>
+			<if test="POS_NAME != null || POS_NAME != ''">
+				POS_NAME= #{POS_NAME},
+			</if>
+			<if test="POS_PHONE != null || POS_PHONE != ''">
+				POS_PHONE= #{POS_PHONE},
+			</if>
+			<if test="POS_TEAM != null || POS_TEAM != ''">
+				POS_TEAM= #{POS_TEAM},
+			</if>
+			<if test="POS_ETC != null || POS_ETC != ''">
+				POS_ETC= #{POS_ETC},
+			</if>
+		</set>
+		WHERE POS_NUM = #{POS_NUM}
+	</update>
+
+	<select id="selPosList" resultType="egovframework.example.service.vo.DeptVO">
+		SELECT A.POS_NUM, A.POS_POSITION, A.POS_NAME, A.POS_PHONE, A.POS_HIREDATE, A.POS_ETC, B.DEPT_NM
+		FROM POS_MEMBER A
+		LEFT JOIN FORWIZ_DEPT B
+		ON A.POS_TEAM = B.DEPT_NO
+		ORDER BY POS_NUM DESC 
+		
+		<!-- <![CDATA[
+			SELECT 
+				A.POS_NUM, 
+				A.POS_POSITION, 
+				A.POS_NAME, 
+				A.POS_PHONE, 
+				A.POS_HIREDATE, 
+				A.POS_ETC, 
+				B.DEPT_NM 
+				FROM
+			( SELECT ROWNUM RN, * FROM POS_MEMBER
+			WHERE 1=1
+			AND ROWNUM <+ #{criteria.pageNum} * #{criteria.amount}
+		]]>
+		<![CDATA[
+			) A LEFT JOIN FORWIZ_DEPT B
+			ON A.POS_TEAM = B.DEPT_NO
+			WHERE RN > (#{pageNum}-1) * #{amount} AND RN <= #{pageNum} * #{amount}
+		]]> -->		
+	</select>
+	<select id="getList" resultType="egovframework.example.service.vo.DeptVO">
+		<![CDATA[
+		SELECT  POS_NUM, 
+				POS_POSITION, 
+				POS_NAME, 
+				POS_PHONE, 
+				POS_HIREDATE, 
+				POS_ETC,
+				DEPT_NM
+				
+		FROM (
+			  SELECT ROWNUM RN
+			  	   , A.*
+			  FROM (
+			  		SELECT B.POS_NUM
+					     , B.POS_POSITION
+					     , B.POS_NAME
+					     , B.POS_PHONE
+					     , B.POS_HIREDATE
+					     , B.POS_ETC
+					     , C.DEPT_NM
+					     
+					FROM POS_MEMBER	B
+					LEFT JOIN FORWIZ_DEPT C
+					ON B.POS_TEAM = C.DEPT_NO
+					ORDER BY 1
+				)A
+			)
+		WHERE RN > (#{pageNum}-1) * #{amount} AND RN <= #{pageNum} * #{amount}				
+					]]>
+		
+	</select>
+	<select id="getTotal" resultType="int">
+		SELECT COUNT(*)
+		FROM POS_MEMBER
+	</select>
+	
+	<select id="seldetail" resultType="egovframework.example.service.vo.DeptVO">
+		SELECT A.POS_NUM, A.POS_POSITION, A.POS_NAME, A.POS_PHONE, A.POS_HIREDATE, B.DEPT_NM, A.POS_ETC
+		FROM POS_MEMBER A
+		LEFT JOIN FORWIZ_DEPT B
+		ON A.POS_TEAM = B.DEPT_NO
+		WHERE POS_NUM = ${POS_NUM}
+	</select>
+	
+	
+	<delete id="delPos">
+		DELETE FROM POS_MEMBER
+		WHERE POS_NUM= ${POS_NUM}
+	</delete>
+	
+</mapper>

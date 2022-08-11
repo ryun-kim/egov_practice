@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="BoardMapper">
+
+
+	<insert id="insertBoard">
+		insert into tbl_board
+		(board_idx,board_title, board_content, board_writer, board_regdate)
+		values
+		(board_seq.nextval, #{board_title}, #{board_content}, #{board_writer}, #{board_regdate})
+	</insert>
+	
+	<select id="boardList" resultType="egovframework.example.service.vo.BoardVO" parameterType="egovframework.example.service.vo.BoardVO">
+		<![CDATA[
+			select
+				board_idx, board_title, board_content, board_writer, board_regdate, board_updatedate
+			from
+				tbl_board
+			
+			where 1=1			
+		]]>
+		<if test="searchKeyword !=null and searchKeyword !=''">
+				<![CDATA[
+					and
+						(
+							board_title like '%'||#{searchKeyword}||'%' OR
+							board_content like '%'||#{searchKeyword}||'%'
+						)
+				]]>
+			</if>
+		<![CDATA[	
+		ORDER BY board_idx DESC
+		]]>
+	</select>
+	
+	<select id="detailBoard" resultType="egovframework.example.service.vo.BoardVO">
+		select
+			board_idx, board_title, board_content, board_writer, board_regdate
+		from
+			tbl_board
+		where board_idx = #{board_idx}
+	</select>
+	
+	
+	<update id="updBoard" parameterType="egovframework.example.service.vo.BoardVO">
+		update tbl_board
+		<set>
+			<if test="board_title != null || board_title != ''">
+				board_title = #{board_title},
+			</if>
+			<if test="board_content != null || board_content !=''">
+				board_content = #{board_content},
+			</if>
+			<if test="board_writer != null || board_writer !=''">
+				board_writer = #{board_writer},
+			</if>
+			board_updatedate= sysdate
+			where board_idx =#{board_idx}
+		</set>
+	</update>
+	
+	<delete id="delBoard">
+		<![CDATA[
+        delete 
+        	from 
+        tbl_board
+        where
+        board_idx =#{board_idx}            
+    	]]>
+	</delete>
+</mapper>
